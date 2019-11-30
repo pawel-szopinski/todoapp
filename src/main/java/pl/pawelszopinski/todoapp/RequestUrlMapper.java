@@ -8,24 +8,23 @@ import static fi.iki.elonen.NanoHTTPD.Response.Status.NOT_FOUND;
 
 public class RequestUrlMapper {
 
-    private final static String ADD_TASK_URL = "/todos/add";
-    private final static String GET_ALL_TASK_URL = "/todos/getAll";
-    private final static String GET_SINGLE_TASK_URL = "/todos/getSingle";
-    private final static String DELETE_TASK_URL = "/todos/delete";
-    private final static String PUT_COMPLETED_TASK_URL = "/todos/setCompleted";
+    private final static String TODOS = "/todos";
+    private final static String TODOS_PARAM = "/todos/";
+    private final static String COMPLETE = "/complete";
 
     private TaskController taskController = new TaskController();
 
     public NanoHTTPD.Response delegateRequest(NanoHTTPD.IHTTPSession session) {
-        if (GET.equals(session.getMethod()) && GET_ALL_TASK_URL.equals(session.getUri())) {
+        if (GET.equals(session.getMethod()) && TODOS.equals(session.getUri())) {
             return taskController.serveGetAllRequest();
-        } else if (GET.equals(session.getMethod()) && GET_SINGLE_TASK_URL.equals(session.getUri())) {
+        } else if (GET.equals(session.getMethod()) && session.getUri().startsWith(TODOS_PARAM)) {
             return taskController.serveGetSingleRequest(session);
-        } else if (POST.equals(session.getMethod()) && ADD_TASK_URL.equals(session.getUri())) {
+        } else if (POST.equals(session.getMethod()) && TODOS.equals(session.getUri())) {
             return taskController.serveAddRequest(session);
-        } else if (DELETE.equals(session.getMethod()) && DELETE_TASK_URL.equals(session.getUri())) {
+        } else if (DELETE.equals(session.getMethod()) && session.getUri().startsWith(TODOS_PARAM)) {
             return taskController.serveDeleteRequest(session);
-        } else if (PUT.equals(session.getMethod()) && PUT_COMPLETED_TASK_URL.equals(session.getUri())) {
+        } else if (PUT.equals(session.getMethod()) && session.getUri().startsWith(TODOS_PARAM) &&
+            session.getUri().endsWith(COMPLETE)) {
             return taskController.serveSetCompletedRequest(session);
         }
 
