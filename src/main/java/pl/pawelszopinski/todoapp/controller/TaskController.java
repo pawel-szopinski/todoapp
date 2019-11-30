@@ -18,7 +18,6 @@ public class TaskController {
 
     ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String TASK_ID_PARAM_NAME = "id";
     private static final String MIME_TEXT_PLAIN = "text/plain";
     private static final String MIME_APP_JSON = "application/json";
 
@@ -57,16 +56,7 @@ public class TaskController {
     }
 
     public NanoHTTPD.Response serveGetSingleRequest(NanoHTTPD.IHTTPSession session) {
-        String taskIdFromUri = session.getUri().replaceAll("\\D+","");
-        long taskId;
-        try {
-            taskId = Long.parseLong(taskIdFromUri);
-        } catch (NumberFormatException e) {
-            return newFixedLengthResponse(BAD_REQUEST, MIME_TEXT_PLAIN,
-                    "Bad request - missing " + TASK_ID_PARAM_NAME);
-        }
-
-        Task task = taskStorage.getSingle(taskId);
+        Task task = getTaskFromUri(session);
         if (task != null) {
             try {
                 String response = objectMapper.writeValueAsString(task);
@@ -77,44 +67,43 @@ public class TaskController {
             }
         }
 
-        return newFixedLengthResponse(NOT_FOUND, MIME_TEXT_PLAIN, "Task not found in Db!");
+        return taskNotFound();
     }
 
     public NanoHTTPD.Response serveDeleteRequest(NanoHTTPD.IHTTPSession session) {
-        String taskIdFromUri = session.getUri().replaceAll("\\D+","");
-        long taskId;
-        try {
-            taskId = Long.parseLong(taskIdFromUri);
-        } catch (NumberFormatException e) {
-            return newFixedLengthResponse(BAD_REQUEST, MIME_TEXT_PLAIN,
-                    "Bad request - missing " + TASK_ID_PARAM_NAME);
-        }
-
-        Task task = taskStorage.getSingle(taskId);
+        Task task = getTaskFromUri(session);
         if (task != null) {
-            taskStorage.delete(taskId);
+            taskStorage.delete(task.getId());
             return newFixedLengthResponse(OK, MIME_TEXT_PLAIN, "Task deleted");
         }
 
-        return newFixedLengthResponse(NOT_FOUND, MIME_TEXT_PLAIN, "Task not found in Db!");
+        return taskNotFound();
     }
 
     public NanoHTTPD.Response serveSetCompletedRequest(NanoHTTPD.IHTTPSession session) {
+        Task task = getTaskFromUri(session);
+        if (task != null) {
+            taskStorage.setCompleted(task.getId());
+            return newFixedLengthResponse(OK, MIME_TEXT_PLAIN, "Status updated");
+        }
+
+        return taskNotFound();
+    }
+
+    private Task getTaskFromUri(NanoHTTPD.IHTTPSession session) {
         String taskIdFromUri = session.getUri().replaceAll("\\D+","");
+
         long taskId;
         try {
             taskId = Long.parseLong(taskIdFromUri);
         } catch (NumberFormatException e) {
-            return newFixedLengthResponse(BAD_REQUEST, MIME_TEXT_PLAIN,
-                    "Bad request - missing " + TASK_ID_PARAM_NAME);
+            return null;
         }
 
-        Task task = taskStorage.getSingle(taskId);
-        if (task != null) {
-            taskStorage.setCompleted(taskId);
-            return newFixedLengthResponse(OK, MIME_TEXT_PLAIN, "Status updated");
-        }
+        return taskStorage.getSingle(taskId);
+    }
 
+    private NanoHTTPD.Response taskNotFound() {
         return newFixedLengthResponse(NOT_FOUND, MIME_TEXT_PLAIN, "Task not found in Db!");
     }
 }
