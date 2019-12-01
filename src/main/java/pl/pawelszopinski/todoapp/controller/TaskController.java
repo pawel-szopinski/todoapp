@@ -14,9 +14,9 @@ import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 
 public class TaskController {
 
-    private InMemoryTaskStorage taskStorage = new InMemoryTaskStorage();
+    private final InMemoryTaskStorage taskStorage = new InMemoryTaskStorage();
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final String MIME_TEXT_PLAIN = "text/plain";
     private static final String MIME_APP_JSON = "application/json";

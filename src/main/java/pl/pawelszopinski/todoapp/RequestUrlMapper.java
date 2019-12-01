@@ -12,7 +12,7 @@ public class RequestUrlMapper {
     private final static String TODOS_PARAM = "/todos/";
     private final static String COMPLETE = "/complete";
 
-    private TaskController taskController = new TaskController();
+    private final TaskController taskController = new TaskController();
 
     public NanoHTTPD.Response delegateRequest(NanoHTTPD.IHTTPSession session) {
         if (GET.equals(session.getMethod()) && TODOS.equals(session.getUri())) {

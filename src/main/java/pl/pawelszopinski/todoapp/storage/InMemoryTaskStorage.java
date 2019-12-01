@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class InMemoryTaskStorage implements TaskStorage {
 
-    private Map<Long, Task> taskDb = new HashMap<>();
+    private final Map<Long, Task> taskDb = new HashMap<>();
     private long nextIndex = 1;
 
     @Override

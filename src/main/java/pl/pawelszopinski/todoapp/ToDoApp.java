@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class ToDoApp extends NanoHTTPD {
 
-    private RequestUrlMapper requestUrlMapper = new RequestUrlMapper();
+    private final RequestUrlMapper requestUrlMapper = new RequestUrlMapper();
 
     public static void main(String[] args) {
         try {
