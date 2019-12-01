@@ -6,9 +6,6 @@ import fi.iki.elonen.NanoHTTPD;
 import pl.pawelszopinski.todoapp.storage.InMemoryTaskStorage;
 import pl.pawelszopinski.todoapp.type.Task;
 
-import java.util.List;
-import java.util.Map;
-
 import static fi.iki.elonen.NanoHTTPD.Response.Status.*;
 import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 
@@ -22,16 +19,17 @@ public class TaskController {
     private static final String MIME_APP_JSON = "application/json";
 
     public NanoHTTPD.Response serveAddRequest(NanoHTTPD.IHTTPSession session) {
-        long taskId = taskStorage.getNextId();
-
         int lengthHeader = Integer.parseInt(session.getHeaders().get("content-length"));
 
         byte[] buffer = new byte[lengthHeader];
 
+        long taskId;
         try {
             session.getInputStream().read(buffer, 0, lengthHeader);
             String requestBody = new String(buffer).trim();
+
             Task requestTask = objectMapper.readValue(requestBody, Task.class);
+            taskId = taskStorage.getNextId();
             requestTask.setId(taskId);
             taskStorage.add(requestTask);
         } catch (Exception e) {
