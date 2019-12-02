@@ -10,7 +10,7 @@ public class ToDoApp extends NanoHTTPD {
 
     public static void main(String[] args) {
         try {
-            new ToDoApp(8080).start(5000, false);
+            new ToDoApp(8080).start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
             System.out.println("The server has been started.");
         } catch (IOException e) {
             System.out.println("The server cannot start! Error: " + e);
