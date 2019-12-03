@@ -53,8 +53,8 @@ public class TaskController {
         return newFixedLengthResponse(OK, MIME_APP_JSON, response);
     }
 
-    public NanoHTTPD.Response serveGetSingleRequest(NanoHTTPD.IHTTPSession session) {
-        Task task = getTaskFromUri(session);
+    public NanoHTTPD.Response serveGetSingleRequest(NanoHTTPD.IHTTPSession session, String id) {
+        Task task = getTask(id);
         if (task != null) {
             try {
                 String response = objectMapper.writeValueAsString(task);
@@ -68,8 +68,8 @@ public class TaskController {
         return taskNotFound();
     }
 
-    public NanoHTTPD.Response serveDeleteRequest(NanoHTTPD.IHTTPSession session) {
-        Task task = getTaskFromUri(session);
+    public NanoHTTPD.Response serveDeleteRequest(NanoHTTPD.IHTTPSession session, String id) {
+        Task task = getTask(id);
         if (task != null) {
             taskStorage.delete(task.getId());
             return newFixedLengthResponse(OK, MIME_TEXT_PLAIN, "Task deleted");
@@ -78,8 +78,8 @@ public class TaskController {
         return taskNotFound();
     }
 
-    public NanoHTTPD.Response serveSetCompletedRequest(NanoHTTPD.IHTTPSession session) {
-        Task task = getTaskFromUri(session);
+    public NanoHTTPD.Response serveSetCompletedRequest(NanoHTTPD.IHTTPSession session, String id) {
+        Task task = getTask(id);
         if (task != null) {
             taskStorage.setCompleted(task.getId());
             return newFixedLengthResponse(OK, MIME_TEXT_PLAIN, "Status updated");
@@ -88,12 +88,10 @@ public class TaskController {
         return taskNotFound();
     }
 
-    private Task getTaskFromUri(NanoHTTPD.IHTTPSession session) {
-        String taskIdFromUri = session.getUri().replaceAll("\\D+","");
-
+    private Task getTask(String id) {
         long taskId;
         try {
-            taskId = Long.parseLong(taskIdFromUri);
+            taskId = Long.parseLong(id);
         } catch (NumberFormatException e) {
             return null;
         }
