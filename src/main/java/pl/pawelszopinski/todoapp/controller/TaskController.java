@@ -6,6 +6,15 @@ import fi.iki.elonen.NanoHTTPD;
 import pl.pawelszopinski.todoapp.storage.InMemoryTaskStorage;
 import pl.pawelszopinski.todoapp.type.Task;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import static fi.iki.elonen.NanoHTTPD.Response.Status.*;
 import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 
@@ -86,6 +95,35 @@ public class TaskController {
         }
 
         return taskNotFound();
+    }
+
+    public NanoHTTPD.Response serveAddAttachment(NanoHTTPD.IHTTPSession session, String id) {
+        Task task = getTask(id);
+        if (task == null) return taskNotFound();
+
+        Map<String, List<String>> params = session.getParameters();
+
+        Map<String, String> files = new HashMap<>();
+
+        try {
+            session.parseBody(files);
+
+            Set<String> keys = files.keySet();
+            for(String key: keys) {
+                String location = files.get(key);
+
+                File tempFile = new File(location);
+
+                String originalName = params.get("file").get(0);
+
+                taskStorage.addAttachment(task.getId(), tempFile, originalName);
+            }
+        } catch (IOException | NanoHTTPD.ResponseException e) {
+            return newFixedLengthResponse(INTERNAL_ERROR, MIME_TEXT_PLAIN,
+                    "Internal error - attachment could not be added!");
+        }
+
+        return newFixedLengthResponse(OK, MIME_TEXT_PLAIN, "The file has been attached to a task.");
     }
 
     private Task getTask(String id) {

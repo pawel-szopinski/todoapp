@@ -10,6 +10,7 @@ class RequestUrlMapper {
 
     private final static String TODOS = "todos";
     private final static String COMPLETE = "complete";
+    private final static String ATTACH = "add-attachment";
 
     private final TaskController taskController = new TaskController();
 
@@ -31,6 +32,9 @@ class RequestUrlMapper {
         } else if (PUT.equals(session.getMethod()) && uriArray.length == 3 &&
                 uriArray[0].equalsIgnoreCase(TODOS) && uriArray[2].equalsIgnoreCase(COMPLETE)) {
             return taskController.serveSetCompletedRequest(session, uriArray[1]);
+        } else if (POST.equals(session.getMethod()) && uriArray.length == 3 &&
+                uriArray[0].equalsIgnoreCase(TODOS) && uriArray[2].equalsIgnoreCase(ATTACH)) {
+            return taskController.serveAddAttachment(session, uriArray[1]);
         }
 
         return NanoHTTPD.newFixedLengthResponse(NOT_FOUND, "text/plain", "Not Found");

@@ -2,6 +2,10 @@ package pl.pawelszopinski.todoapp.storage;
 
 import pl.pawelszopinski.todoapp.type.Task;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +42,17 @@ public class InMemoryTaskStorage implements TaskStorage {
         Task task = taskDb.get(id);
         task.setCompleted(true);
         taskDb.put(id, task);
+    }
+
+    @Override
+    public void addAttachment(long id, File file, String originalName) {
+        try {
+            Files.copy(file.toPath(),
+                    new File("./src/main/resources/" + id + "/" + originalName).toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public long getNextId() {

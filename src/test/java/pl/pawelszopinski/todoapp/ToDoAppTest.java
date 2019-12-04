@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static org.hamcrest.Matchers.*;
+
 class ToDoAppTest {
 
     ToDoApp app;
@@ -32,6 +34,7 @@ class ToDoAppTest {
         RestAssured.when()
                 .get("/todos")
                 .then()
+                .body("", hasSize(0))
                 .statusCode(200);
     }
 }
