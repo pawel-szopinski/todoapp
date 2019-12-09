@@ -45,7 +45,8 @@ public class DatabaseTaskRepository implements TaskRepository {
         List<Task> tasks = new ArrayList<>();
 
         try {
-            PreparedStatement statement = connection.prepareStatement("select * from task order by id");
+            PreparedStatement statement = connection.prepareStatement(
+                    "select * from task order by id");
 
             ResultSet rs = statement.executeQuery();
 
@@ -77,7 +78,8 @@ public class DatabaseTaskRepository implements TaskRepository {
         Task task = null;
 
         try {
-            PreparedStatement statement = connection.prepareStatement("select * from task where id = ?");
+            PreparedStatement statement = connection.prepareStatement(
+                    "select * from task where id = ?");
 
             statement.setLong(1, id);
 
@@ -140,13 +142,41 @@ public class DatabaseTaskRepository implements TaskRepository {
     }
 
     @Override
-    public void delete(long id) {
-
+    public boolean delete(long id) throws SQLException {
+        return singleRowModification(id,
+                "delete from task where id = ?",
+                "Can't remove data from db: ");
     }
 
     @Override
-    public void setCompleted(long id) {
+    public boolean setCompleted(long id) throws SQLException {
+        return singleRowModification(id,
+                "update task set completed = true where id = ?",
+                "Can't update data in db: ");
+    }
 
+    private boolean singleRowModification(long id, String query, String errorMessage) throws SQLException {
+        connection = establishDbConnection();
+
+        boolean taskUpdated = false;
+
+        try {
+            PreparedStatement statement = connection.prepareStatement(query);
+
+            statement.setLong(1, id);
+
+            if (statement.executeUpdate() > 0) {
+                taskUpdated = true;
+            }
+
+            statement.close();
+        } catch (SQLException e) {
+            throw new SQLException(errorMessage + e.getMessage());
+        } finally {
+            closeDbConnection();
+        }
+
+        return taskUpdated;
     }
 
     @Override

@@ -38,15 +38,26 @@ public class InMemoryTaskRepository implements TaskRepository {
     }
 
     @Override
-    public void delete(long id) {
+    public boolean delete(long id) {
+        if (!taskDb.containsKey(id)) {
+            return false;
+        }
+
         taskDb.remove(id);
+
+        return true;
     }
 
     @Override
-    public void setCompleted(long id) {
+    public boolean setCompleted(long id) {
+        if (!taskDb.containsKey(id)) {
+            return false;
+        }
+
         Task task = taskDb.get(id);
         task.setCompleted(true);
         taskDb.put(id, task);
+        return true;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

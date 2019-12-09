@@ -15,9 +15,9 @@ public interface TaskRepository {
 
     long add(Task task) throws SQLException;
 
-    void delete(long id) throws SQLException;
+    boolean delete(long id) throws SQLException;
 
-    void setCompleted(long id) throws SQLException;
+    boolean setCompleted(long id) throws SQLException;
 
     void addAttachment(long id, File file, String originalName) throws IOException, SQLException;
 }

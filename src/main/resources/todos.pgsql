@@ -1,3 +1,9 @@
+--make sure to create database first!
+--CREATE DATABASE todos LC_COLLATE='polish_Poland' LC_CTYPE='polish_Poland' template=template0;
+
+
+
+
 --
 -- PostgreSQL database dump
 --
@@ -62,12 +68,6 @@ ALTER SEQUENCE public.task_id_seq OWNED BY public.task.id;
 --
 
 ALTER TABLE ONLY public.task ALTER COLUMN id SET DEFAULT nextval('public.task_id_seq'::regclass);
-
---
--- Name: task_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.task_id_seq', 1, true);
 
 
 --

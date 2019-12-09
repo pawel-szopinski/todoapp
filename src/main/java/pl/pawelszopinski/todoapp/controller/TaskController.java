@@ -18,12 +18,14 @@ import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 
 public class TaskController {
 
-    private final TaskRepository taskRepository;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String SINGLE_DELETE = "delete";
+    private static final String SINGLE_COMPLETE = "complete";
 
     private static final String MIME_TEXT_PLAIN = "text/plain";
     private static final String MIME_APP_JSON = "application/json";
+
+    private final TaskRepository taskRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public TaskController(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
@@ -105,45 +107,36 @@ public class TaskController {
     }
 
     public NanoHTTPD.Response serveDeleteRequest(String id) {
-        Task task;
-        try {
-            task = getTask(id);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return dbError();
-        }
-
-        if (task != null) {
-            try {
-                taskRepository.delete(task.getId());
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return newFixedLengthResponse(OK, MIME_TEXT_PLAIN, "Task deleted");
-        }
-
-        return taskNotFound();
+        return serveSingleRowModification(SINGLE_DELETE, id, "Task deleted");
     }
 
     public NanoHTTPD.Response serveSetCompletedRequest(String id) {
-        Task task;
+        return serveSingleRowModification(SINGLE_COMPLETE, id, "Status updated!");
+    }
+
+    private NanoHTTPD.Response serveSingleRowModification(String type, String id, String okResponse) {
+        long taskId;
         try {
-            task = getTask(id);
+            taskId = Long.parseLong(id);
+        } catch (NumberFormatException e) {
+            return badId();
+        }
+
+        boolean modified = false;
+        try {
+            if (type.equals(SINGLE_COMPLETE)) {
+                modified = taskRepository.setCompleted(taskId);
+            } else if (type.equals(SINGLE_DELETE)) {
+                modified = taskRepository.delete(taskId);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return dbError();
         }
 
-        if (task != null) {
-            try {
-                taskRepository.setCompleted(task.getId());
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            return newFixedLengthResponse(OK, MIME_TEXT_PLAIN, "Status updated");
-        }
+        if (!modified) return taskNotFound();
 
-        return taskNotFound();
+        return newFixedLengthResponse(OK, MIME_TEXT_PLAIN, okResponse);
     }
 
     public NanoHTTPD.Response serveAddAttachment(NanoHTTPD.IHTTPSession session, String id) {
@@ -207,5 +200,10 @@ public class TaskController {
     private NanoHTTPD.Response dbError() {
         return newFixedLengthResponse(INTERNAL_ERROR, MIME_TEXT_PLAIN,
                 "Internal error - there was an issue with database connection!");
+    }
+
+    private NanoHTTPD.Response badId() {
+        return newFixedLengthResponse(BAD_REQUEST, MIME_TEXT_PLAIN,
+                "Bad request - can't parse id to number!");
     }
 }
