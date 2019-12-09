@@ -7,7 +7,19 @@ public class Task {
     private String assignee;
     private String description;
     private boolean completed;
-    private int priority;
+    private short priority;
+
+    Task() {
+    }
+
+    public Task(long id, String name, String assignee, String description, boolean completed, short priority) {
+        this.id = id;
+        this.name = name;
+        this.assignee = assignee;
+        this.description = description;
+        this.completed = completed;
+        this.priority = priority;
+    }
 
     public long getId() {
         return id;
@@ -49,11 +61,23 @@ public class Task {
         this.completed = completed;
     }
 
-    public int getPriority() {
+    public short getPriority() {
         return priority;
     }
 
-    public void setPriority(int priority) {
+    public void setPriority(short priority) {
         this.priority = priority;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", assignee='" + assignee + '\'' +
+                ", description='" + description + '\'' +
+                ", completed=" + completed +
+                ", priority=" + priority +
+                '}';
     }
 }

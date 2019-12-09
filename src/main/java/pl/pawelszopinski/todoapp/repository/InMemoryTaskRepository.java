@@ -1,4 +1,4 @@
-package pl.pawelszopinski.todoapp.storage;
+package pl.pawelszopinski.todoapp.repository;
 
 import pl.pawelszopinski.todoapp.type.Task;
 
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InMemoryTaskStorage implements TaskStorage {
+public class InMemoryTaskRepository implements TaskRepository {
 
     private final Map<Long, Task> taskDb = new HashMap<>();
     private long nextIndex = 1;
@@ -27,9 +27,14 @@ public class InMemoryTaskStorage implements TaskStorage {
     }
 
     @Override
-    public void add(Task task) {
-        taskDb.put(task.getId(), task);
+    public long add(Task task) {
+        long id = getNextId();
+        task.setId(id);
+        taskDb.put(id, task);
+
         nextIndex++;
+
+        return id;
     }
 
     @Override
@@ -44,18 +49,18 @@ public class InMemoryTaskStorage implements TaskStorage {
         taskDb.put(id, task);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    public void addAttachment(long id, File file, String originalName) {
-        try {
-            Files.copy(file.toPath(),
-                    new File("./src/main/resources/" + id + "/" + originalName).toPath(),
-                    StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void addAttachment(long id, File file, String originalName) throws IOException {
+        File dir = new File("./src/main/resources/" + id + "/");
+        if (!dir.exists()) dir.mkdirs();
+
+        Files.copy(file.toPath(),
+                new File(dir.getPath() + "/" + originalName).toPath(),
+                StandardCopyOption.REPLACE_EXISTING);
     }
 
-    public long getNextId() {
+    private long getNextId() {
         return nextIndex;
     }
 }

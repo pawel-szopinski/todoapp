@@ -5,10 +5,11 @@ import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.pawelszopinski.todoapp.repository.InMemoryTaskRepository;
 
 import java.io.IOException;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
 
 class ToDoAppTest {
 
@@ -17,7 +18,7 @@ class ToDoAppTest {
     @BeforeEach
     void setUp() {
         try {
-            app = new ToDoApp(8080);
+            app = new ToDoApp(8080, new InMemoryTaskRepository());
             app.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         } catch (IOException e) {
             e.printStackTrace();
@@ -30,7 +31,7 @@ class ToDoAppTest {
     }
 
     @Test
-    void testGetAllSuccessWhenStorageEmpty() {
+    void testGetAllSuccessWhenEmpty() {
         RestAssured.when()
                 .get("/todos")
                 .then()
