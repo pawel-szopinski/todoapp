@@ -12,60 +12,20 @@ import java.util.ResourceBundle;
 
 public class DatabaseTaskRepository implements TaskRepository {
 
-    private Connection connection;
-
-    private Connection establishDbConnection() throws SQLException {
-        Connection connection;
-        try {
-            ResourceBundle reader = ResourceBundle.getBundle("dbconfig");
-
-            connection = DriverManager.getConnection(
-                    reader.getString("db.url"),
-                    reader.getString("db.username"),
-                    reader.getString("db.password"));
-        } catch (SQLException | MissingResourceException e) {
-            throw new SQLException("Can't connect to the database: " + e.getMessage());
-        }
-
-        return connection;
-    }
-
-    private void closeDbConnection() {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            System.out.println("Can't close connection to db: " + e.getMessage());
-        }
-    }
-
     @Override
     public List<Task> getAll() throws SQLException {
-        connection = establishDbConnection();
-
+        String sql = "select * from task order by id";
         List<Task> tasks = new ArrayList<>();
 
-        try {
-            PreparedStatement statement = connection.prepareStatement(
-                    "select * from task order by id");
-
-            ResultSet rs = statement.executeQuery();
+        try (Connection connection = establishDbConnection();
+             Statement statement = connection.createStatement();
+             ResultSet rs = statement.executeQuery(sql)) {
 
             while (rs.next()) {
-                tasks.add(new Task(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("assignee"),
-                        rs.getString("description"),
-                        rs.getBoolean("completed"),
-                        rs.getShort("priority")));
+                tasks.add(getTaskObject(rs));
             }
-
-            rs.close();
-            statement.close();
         } catch (SQLException e) {
             throw new SQLException("Can't pull data from db: " + e.getMessage());
-        } finally {
-            closeDbConnection();
         }
 
         return tasks;
@@ -73,34 +33,21 @@ public class DatabaseTaskRepository implements TaskRepository {
 
     @Override
     public Task getSingle(long id) throws SQLException {
-        connection = establishDbConnection();
-
+        String sql = "select * from task where id = ?";
         Task task = null;
 
-        try {
-            PreparedStatement statement = connection.prepareStatement(
-                    "select * from task where id = ?");
+        try (Connection connection = establishDbConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
             statement.setLong(1, id);
 
-            ResultSet rs = statement.executeQuery();
-
-            if (rs.next()) {
-                task = new Task(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("assignee"),
-                        rs.getString("description"),
-                        rs.getBoolean("completed"),
-                        rs.getShort("priority"));
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    task = getTaskObject(rs);
+                }
             }
-
-            rs.close();
-            statement.close();
         } catch (SQLException e) {
             throw new SQLException("Can't pull data from db: " + e.getMessage());
-        } finally {
-            closeDbConnection();
         }
 
         return task;
@@ -108,14 +55,11 @@ public class DatabaseTaskRepository implements TaskRepository {
 
     @Override
     public long add(Task task) throws SQLException {
-        connection = establishDbConnection();
-
+        String sql = "insert into task (name, assignee, description, completed, priority) values (?, ?, ?, ?, ?)";
         long id;
 
-        try {
-            PreparedStatement statement = connection.prepareStatement(
-                    "insert into task (name, assignee, description, completed, priority) values (?, ?, ?, ?, ?)",
-                    Statement.RETURN_GENERATED_KEYS);
+        try (Connection connection = establishDbConnection();
+             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, task.getName());
             statement.setString(2, task.getAssignee());
@@ -123,19 +67,16 @@ public class DatabaseTaskRepository implements TaskRepository {
             statement.setBoolean(4, task.isCompleted());
             statement.setShort(5, task.getPriority());
 
-            statement.executeUpdate();
-
-            ResultSet rs = statement.getGeneratedKeys();
-            rs.next();
-
-            id = rs.getLong(1);
-
-            rs.close();
-            statement.close();
+            if (statement.executeUpdate() == 1) {
+                try (ResultSet rs = statement.getGeneratedKeys()) {
+                    rs.next();
+                    id = rs.getLong(1);
+                }
+            } else {
+                throw new SQLException("Zero records were added.");
+            }
         } catch (SQLException e) {
             throw new SQLException("Can't insert data into db: " + e.getMessage());
-        } finally {
-            closeDbConnection();
         }
 
         return id;
@@ -155,32 +96,52 @@ public class DatabaseTaskRepository implements TaskRepository {
                 "Can't update data in db: ");
     }
 
-    private boolean singleRowModification(long id, String query, String errorMessage) throws SQLException {
-        connection = establishDbConnection();
-
-        boolean taskUpdated = false;
-
-        try {
-            PreparedStatement statement = connection.prepareStatement(query);
-
-            statement.setLong(1, id);
-
-            if (statement.executeUpdate() > 0) {
-                taskUpdated = true;
-            }
-
-            statement.close();
-        } catch (SQLException e) {
-            throw new SQLException(errorMessage + e.getMessage());
-        } finally {
-            closeDbConnection();
-        }
-
-        return taskUpdated;
-    }
-
     @Override
     public void addAttachment(long id, File file, String originalName) throws IOException {
 
+    }
+
+    private Connection establishDbConnection() throws SQLException {
+        Connection connection;
+        try {
+            ResourceBundle reader = ResourceBundle.getBundle("dbconfig");
+
+            connection = DriverManager.getConnection(
+                    reader.getString("db.url"),
+                    reader.getString("db.username"),
+                    reader.getString("db.password"));
+        } catch (SQLException | MissingResourceException e) {
+            throw new SQLException("Can't connect to the database: " + e.getMessage());
+        }
+
+        return connection;
+    }
+
+    private Task getTaskObject(ResultSet rs) throws SQLException {
+        return new Task(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("assignee"),
+                rs.getString("description"),
+                rs.getBoolean("completed"),
+                rs.getShort("priority"));
+    }
+
+    private boolean singleRowModification(long id, String query, String errorMessage) throws SQLException {
+        boolean taskUpdated = false;
+
+        try (Connection connection = establishDbConnection();
+             PreparedStatement statement = connection.prepareStatement(query)) {
+
+            statement.setLong(1, id);
+
+            if (statement.executeUpdate() == 1) {
+                taskUpdated = true;
+            }
+        } catch (SQLException e) {
+            throw new SQLException(errorMessage + e.getMessage());
+        }
+
+        return taskUpdated;
     }
 }

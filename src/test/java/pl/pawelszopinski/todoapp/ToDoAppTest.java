@@ -13,13 +13,13 @@ import static org.hamcrest.Matchers.hasSize;
 
 class ToDoAppTest {
 
-    ToDoApp app;
+    AppServer server;
 
     @BeforeEach
     void setUp() {
         try {
-            app = new ToDoApp(8080, new InMemoryTaskRepository());
-            app.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+            server = new AppServer(8080, new InMemoryTaskRepository());
+            server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -27,7 +27,7 @@ class ToDoAppTest {
 
     @AfterEach
     void tearDown() {
-        app.stop();
+        server.stop();
     }
 
     @Test
