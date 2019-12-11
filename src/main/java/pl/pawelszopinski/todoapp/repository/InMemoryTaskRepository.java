@@ -2,10 +2,7 @@ package pl.pawelszopinski.todoapp.repository;
 
 import pl.pawelszopinski.todoapp.type.Task;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,15 +57,17 @@ public class InMemoryTaskRepository implements TaskRepository {
         return true;
     }
 
+    //TODO
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Override
-    public void addAttachment(long id, File file, String originalName) throws IOException {
-        File dir = new File("./src/main/resources/" + id + "/");
-        if (!dir.exists()) dir.mkdirs();
-
-        Files.copy(file.toPath(),
-                new File(dir.getPath() + "/" + originalName).toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
+    public boolean addAttachment(long taskId, byte[] fileContent, String fileName) throws IOException {
+//        File dir = new File("./src/main/resources/" + id + "/");
+//        if (!dir.exists()) dir.mkdirs();
+//
+//        Files.copy(file.toPath(),
+//                new File(dir.getPath() + "/" + originalName).toPath(),
+//                StandardCopyOption.REPLACE_EXISTING);
+        return false;
     }
 
     private long getNextId() {

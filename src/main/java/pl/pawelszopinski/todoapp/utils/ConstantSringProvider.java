@@ -6,6 +6,6 @@ public class ConstantSringProvider {
 
     public final static String TODOS = "todos";
     public final static String SET_COMPLETED = "complete";
-    public final static String ATTACH = "add-attachment";
+    public final static String ATTACH = "add-attachments";
     public final static String DELETE = "delete";
 }

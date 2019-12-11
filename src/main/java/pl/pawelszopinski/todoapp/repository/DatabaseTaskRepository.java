@@ -2,8 +2,9 @@ package pl.pawelszopinski.todoapp.repository;
 
 import pl.pawelszopinski.todoapp.type.Task;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,9 +97,25 @@ public class DatabaseTaskRepository implements TaskRepository {
                 "Can't update data in db: ");
     }
 
+    //TODO
     @Override
-    public void addAttachment(long id, File file, String originalName) throws IOException {
+    public boolean addAttachment(long taskId, byte[] fileContent, String fileName) throws SQLException, IOException {
+        String sql = "INSERT INTO attachment (name, file, task_id) VALUES (?, ?, ?)";
+        boolean attached;
 
+        try (Connection connection = establishDbConnection();
+             PreparedStatement ps = connection.prepareStatement(sql);
+             InputStream inputStream = new ByteArrayInputStream(fileContent)) {
+
+            ps.setString(1, fileName);
+            ps.setBinaryStream(2, inputStream, fileContent.length);
+            ps.setLong(3, taskId);
+            ps.executeUpdate();
+            attached = true;
+
+        }
+
+        return attached;
     }
 
     private Connection establishDbConnection() throws SQLException {
@@ -127,6 +144,7 @@ public class DatabaseTaskRepository implements TaskRepository {
                 rs.getShort("priority"));
     }
 
+    //TODO - check all catch
     private boolean singleRowModification(long id, String query, String errorMessage) throws SQLException {
         boolean taskUpdated = false;
 
@@ -138,8 +156,8 @@ public class DatabaseTaskRepository implements TaskRepository {
             if (statement.executeUpdate() == 1) {
                 taskUpdated = true;
             }
-        } catch (SQLException e) {
-            throw new SQLException(errorMessage + e.getMessage());
+//        } catch (SQLException e) {
+//            throw new SQLException(errorMessage + e.getMessage());
         }
 
         return taskUpdated;

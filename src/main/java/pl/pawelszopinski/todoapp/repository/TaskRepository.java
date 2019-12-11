@@ -2,7 +2,6 @@ package pl.pawelszopinski.todoapp.repository;
 
 import pl.pawelszopinski.todoapp.type.Task;
 
-import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -19,5 +18,5 @@ public interface TaskRepository {
 
     boolean setCompleted(long id) throws SQLException;
 
-    void addAttachment(long id, File file, String originalName) throws IOException, SQLException;
+    boolean addAttachment(long taskId, byte[] fileContent, String fileName) throws IOException, SQLException;
 }

@@ -37,7 +37,7 @@ class RequestUrlMapper {
             return taskController.serveSetCompletedRequest(uriArray[1]);
         } else if (POST.equals(session.getMethod()) && uriArray.length == 3 &&
                 uriArray[0].equalsIgnoreCase(TODOS) && uriArray[2].equalsIgnoreCase(ATTACH)) {
-            return taskController.serveAddAttachment(session, uriArray[1]);
+            return taskController.serveAddAttachments(session, uriArray[1]);
         }
 
         return NanoHTTPD.newFixedLengthResponse(NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, NOT_FOUND.getDescription());
