@@ -18,5 +18,5 @@ public interface TaskRepository {
 
     boolean setCompleted(long id) throws SQLException;
 
-    boolean addAttachment(long taskId, byte[] fileContent, String fileName) throws IOException, SQLException;
+    void addAttachment(long taskId, byte[] fileContent, String fileName) throws IOException, SQLException;
 }

@@ -25,8 +25,6 @@ public class DatabaseTaskRepository implements TaskRepository {
             while (rs.next()) {
                 tasks.add(getTaskObject(rs));
             }
-        } catch (SQLException e) {
-            throw new SQLException("Can't pull data from db: " + e.getMessage());
         }
 
         return tasks;
@@ -47,8 +45,6 @@ public class DatabaseTaskRepository implements TaskRepository {
                     task = getTaskObject(rs);
                 }
             }
-        } catch (SQLException e) {
-            throw new SQLException("Can't pull data from db: " + e.getMessage());
         }
 
         return task;
@@ -68,16 +64,12 @@ public class DatabaseTaskRepository implements TaskRepository {
             statement.setBoolean(4, task.isCompleted());
             statement.setShort(5, task.getPriority());
 
-            if (statement.executeUpdate() == 1) {
-                try (ResultSet rs = statement.getGeneratedKeys()) {
-                    rs.next();
-                    id = rs.getLong(1);
-                }
-            } else {
-                throw new SQLException("Zero records were added.");
+            statement.executeUpdate();
+
+            try (ResultSet rs = statement.getGeneratedKeys()) {
+                rs.next();
+                id = rs.getLong(1);
             }
-        } catch (SQLException e) {
-            throw new SQLException("Can't insert data into db: " + e.getMessage());
         }
 
         return id;
@@ -85,37 +77,30 @@ public class DatabaseTaskRepository implements TaskRepository {
 
     @Override
     public boolean delete(long id) throws SQLException {
-        return singleRowModification(id,
-                "delete from task where id = ?",
-                "Can't remove data from db: ");
+        return singleRowModificationById(id,
+                "delete from task where id = ?");
     }
 
     @Override
     public boolean setCompleted(long id) throws SQLException {
-        return singleRowModification(id,
-                "update task set completed = true where id = ?",
-                "Can't update data in db: ");
+        return singleRowModificationById(id,
+                "update task set completed = true where id = ?");
     }
 
-    //TODO
     @Override
-    public boolean addAttachment(long taskId, byte[] fileContent, String fileName) throws SQLException, IOException {
+    public void addAttachment(long taskId, byte[] fileContent, String fileName) throws SQLException, IOException {
         String sql = "INSERT INTO attachment (name, file, task_id) VALUES (?, ?, ?)";
-        boolean attached;
 
         try (Connection connection = establishDbConnection();
-             PreparedStatement ps = connection.prepareStatement(sql);
+             PreparedStatement statement = connection.prepareStatement(sql);
              InputStream inputStream = new ByteArrayInputStream(fileContent)) {
 
-            ps.setString(1, fileName);
-            ps.setBinaryStream(2, inputStream, fileContent.length);
-            ps.setLong(3, taskId);
-            ps.executeUpdate();
-            attached = true;
+            statement.setString(1, fileName);
+            statement.setBinaryStream(2, inputStream, fileContent.length);
+            statement.setLong(3, taskId);
 
+            statement.executeUpdate();
         }
-
-        return attached;
     }
 
     private Connection establishDbConnection() throws SQLException {
@@ -144,8 +129,7 @@ public class DatabaseTaskRepository implements TaskRepository {
                 rs.getShort("priority"));
     }
 
-    //TODO - check all catch
-    private boolean singleRowModification(long id, String query, String errorMessage) throws SQLException {
+    private boolean singleRowModificationById(long id, String query) throws SQLException {
         boolean taskUpdated = false;
 
         try (Connection connection = establishDbConnection();
@@ -156,8 +140,6 @@ public class DatabaseTaskRepository implements TaskRepository {
             if (statement.executeUpdate() == 1) {
                 taskUpdated = true;
             }
-//        } catch (SQLException e) {
-//            throw new SQLException(errorMessage + e.getMessage());
         }
 
         return taskUpdated;

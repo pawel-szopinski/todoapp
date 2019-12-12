@@ -105,7 +105,7 @@ public class TaskController {
     public Response serveSetCompletedRequest(String id) {
         return serveSingleRowModification(SET_COMPLETED, id, "Status updated!");
     }
-    //TODO
+
     public Response serveAddAttachments(IHTTPSession session, String id) {
         Task task;
         try {
@@ -117,51 +117,37 @@ public class TaskController {
 
         if (task == null) return taskNotFound();
 
+        List<FileItem> files;
         try {
-            List<FileItem> files = new NanoFileUpload(new DiskFileItemFactory()).parseRequest(session);
-            int uploadedCount = 0;
-            for (FileItem file : files) {
-                try {
-                    String fileName = file.getName();
-                    byte[] fileContent = file.get();
-                    taskRepository.addAttachment(task.getId(), fileContent, fileName);
-                    uploadedCount++;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            return newFixedLengthResponse(OK, MIME_PLAINTEXT,
-                    "Uploaded files " + uploadedCount + " out of " + files.size());
+            files = new NanoFileUpload(new DiskFileItemFactory()).parseRequest(session);
         } catch (FileUploadException e) {
             return newFixedLengthResponse(
-                    BAD_REQUEST, MIME_PLAINTEXT, "Error when uploading");
+                    INTERNAL_ERROR, MIME_PLAINTEXT, INTERNAL_ERROR.getDescription() + ": error when uploading files.");
         }
 
+        int uploadedCount = 0;
+        for (FileItem file : files) {
+            try {
+                String fileName = file.getName();
+                byte[] fileContent = file.get();
+                taskRepository.addAttachment(task.getId(), fileContent, fileName);
 
-//        Map<String, List<String>> params = session.getParameters();
-//
-//        Map<String, String> files = new HashMap<>();
-//
-//        try {
-//            session.parseBody(files);
-//
-//            int paramIndex = 0;
-//            for (String key : files.keySet()) {
-//                String location = files.get(key);
-//
-//                File tempFile = new File(location);
-//
-//                String originalName = params.get("file").get(paramIndex);
-//                paramIndex++;
-//
-//                taskRepository.addAttachments(task.getId(), tempFile, originalName);
-//            }
-//        } catch (IOException | NanoHTTPD.ResponseException | SQLException e) {
-//            return newFixedLengthResponse(INTERNAL_ERROR, NanoHTTPD.MIME_PLAINTEXT,
-//                    INTERNAL_ERROR.getDescription() + ": attachments could not be added!");
-//        }
-//
-//        return newFixedLengthResponse(OK, NanoHTTPD.MIME_PLAINTEXT, "The file has been attached to a task.");
+                uploadedCount++;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (uploadedCount == files.size()) {
+            return newFixedLengthResponse(OK, MIME_PLAINTEXT,
+                    "Uploaded all files.");
+        } else if (uploadedCount == 0) {
+            return newFixedLengthResponse(INTERNAL_ERROR, MIME_PLAINTEXT,
+                    "No files were uploaded.");
+        } else {
+            return newFixedLengthResponse(INTERNAL_ERROR, MIME_PLAINTEXT,
+                    "Errors occured! Only " + uploadedCount + " out of " + files.size() + " files were uploaded.");
+        }
     }
 
     private Response serveSingleRowModification(String type, String id, String okResponse) {

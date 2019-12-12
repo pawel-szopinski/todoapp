@@ -1,4 +1,5 @@
-.idea
-target
+/.idea
+/target
 *.iml
 /src/main/resources/dbconfig.properties
+/uploaded-files
