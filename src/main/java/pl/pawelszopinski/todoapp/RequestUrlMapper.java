@@ -36,8 +36,11 @@ class RequestUrlMapper {
                 uriArray[0].equalsIgnoreCase(TODOS) && uriArray[2].equalsIgnoreCase(SET_COMPLETED)) {
             return taskController.serveSetCompletedRequest(uriArray[1]);
         } else if (POST.equals(session.getMethod()) && uriArray.length == 3 &&
-                uriArray[0].equalsIgnoreCase(TODOS) && uriArray[2].equalsIgnoreCase(ATTACH)) {
+                uriArray[0].equalsIgnoreCase(TODOS) && uriArray[2].equalsIgnoreCase(ADD_ATTACH)) {
             return taskController.serveAddAttachments(session, uriArray[1]);
+        } else if (GET.equals(session.getMethod()) && uriArray.length == 3 &&
+                uriArray[0].equalsIgnoreCase(TODOS) && uriArray[2].equalsIgnoreCase(GET_ATTACH)) {
+            return taskController.serveGetAttachment(session, uriArray[1]);
         }
 
         return NanoHTTPD.newFixedLengthResponse(NOT_FOUND, NanoHTTPD.MIME_PLAINTEXT, NOT_FOUND.getDescription());

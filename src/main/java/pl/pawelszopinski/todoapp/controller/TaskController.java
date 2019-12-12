@@ -150,6 +150,10 @@ public class TaskController {
         }
     }
 
+    public Response serveGetAttachment(IHTTPSession session, String id) {
+        return null;
+    }
+
     private Response serveSingleRowModification(String type, String id, String okResponse) {
         long taskId;
         try {
