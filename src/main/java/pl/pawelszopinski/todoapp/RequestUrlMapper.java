@@ -4,10 +4,9 @@ import fi.iki.elonen.NanoHTTPD;
 import pl.pawelszopinski.todoapp.controller.TaskController;
 import pl.pawelszopinski.todoapp.repository.TaskRepository;
 
-import static fi.iki.elonen.NanoHTTPD.Method.DELETE;
 import static fi.iki.elonen.NanoHTTPD.Method.*;
 import static fi.iki.elonen.NanoHTTPD.Response.Status.NOT_FOUND;
-import static pl.pawelszopinski.todoapp.utils.ConstantSringProvider.*;
+import static pl.pawelszopinski.todoapp.utils.ConstantStringProvider.*;
 
 class RequestUrlMapper {
 

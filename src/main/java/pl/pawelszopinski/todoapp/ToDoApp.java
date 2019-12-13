@@ -13,7 +13,7 @@ public class ToDoApp {
                     NanoHTTPD.SOCKET_READ_TIMEOUT, false);
 
             System.out.println("The server has been started.");
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException e) {
             System.err.println("The server cannot start! Error: " + e);
         }
     }

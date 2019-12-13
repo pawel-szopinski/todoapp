@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +65,9 @@ public class InMemoryTaskRepository implements TaskRepository {
     @Override
     public void addAttachment(long taskId, byte[] fileContent, String fileName) throws IOException {
         File dir = new File("./uploaded-files/" + taskId + "/");
+        File file = new File(dir + "/" + fileName);
+
+        if (file.exists()) throw new IOException("File with the same name already exists.");
 
         try {
             if (!dir.exists()) dir.mkdirs();
@@ -71,11 +75,22 @@ public class InMemoryTaskRepository implements TaskRepository {
             throw new IOException("Can't create directory to save file in due to security reasons.");
         }
 
-        try (OutputStream fileOuputStream = new FileOutputStream(dir + "/" + fileName)) {
-            fileOuputStream.write(fileContent);
+        try (OutputStream fileOutputStream = new FileOutputStream(file)) {
+            fileOutputStream.write(fileContent);
         } catch (SecurityException e) {
             throw new IOException("Can't write file to disk due to security reasons.");
         }
+    }
+
+    @Override
+    public byte[] getAttachment(long taskId, String attachmentName) throws IOException {
+        File file = new File("./uploaded-files/" + taskId + "/" + attachmentName);
+
+        if (!file.exists()) {
+            return null;
+        }
+
+        return Files.readAllBytes(file.toPath());
     }
 
     private long getNextId() {

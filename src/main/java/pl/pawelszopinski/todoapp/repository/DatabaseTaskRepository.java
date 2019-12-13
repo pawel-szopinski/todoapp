@@ -103,6 +103,26 @@ public class DatabaseTaskRepository implements TaskRepository {
         }
     }
 
+    @Override
+    public byte[] getAttachment(long taskId, String attachmentName) throws SQLException {
+        String sql = "SELECT file FROM attachment WHERE name = ? AND task_id = ?";
+
+        try (Connection connection = establishDbConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, attachmentName);
+            statement.setLong(2, taskId);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBytes(1);
+                }
+            }
+        }
+
+        return null;
+    }
+
     private Connection establishDbConnection() throws SQLException {
         Connection connection;
         try {

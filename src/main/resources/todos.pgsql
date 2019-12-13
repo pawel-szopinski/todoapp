@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.4
--- Dumped by pg_dump version 11.4
+-- Dumped from database version 12.1
+-- Dumped by pg_dump version 12.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -18,7 +18,7 @@ SET row_security = off;
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: attachment; Type: TABLE; Schema: public; Owner: postgres
@@ -118,6 +118,14 @@ SELECT pg_catalog.setval('public.attachment_id_seq', 1, true);
 --
 
 SELECT pg_catalog.setval('public.task_id_seq', 1, true);
+
+
+--
+-- Name: attachment attachment_name_task_id_uq; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.attachment
+    ADD CONSTRAINT attachment_name_task_id_uq UNIQUE (name, task_id);
 
 
 --
