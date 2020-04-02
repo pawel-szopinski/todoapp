@@ -82,7 +82,7 @@ class AppServerTest {
                 .post("/todos")
                 .then()
                 .statusCode(400)
-                .body(endsWith("incorrect JSON format!"));
+                .body(endsWith("incorrect JSON format."));
     }
 
     @Test
@@ -93,7 +93,7 @@ class AppServerTest {
                 .post("/todos")
                 .then()
                 .statusCode(400)
-                .body(endsWith("missing 'name' value!"));
+                .body(endsWith("missing 'name' value."));
     }
 
     @Test
@@ -146,7 +146,7 @@ class AppServerTest {
                 .get("/todos/1")
                 .then()
                 .statusCode(404)
-                .body(endsWith("the task does not exist!"));
+                .body(endsWith("the task does not exist."));
     }
 
 //    @Test
