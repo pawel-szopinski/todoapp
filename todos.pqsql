@@ -21,7 +21,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: attachment; Type: TABLE; Schema: public; Owner: postgres
+-- Name: attachment; Type: TABLE; Schema: public
 --
 
 CREATE TABLE public.attachment (
@@ -32,10 +32,8 @@ CREATE TABLE public.attachment (
 );
 
 
-ALTER TABLE public.attachment OWNER TO postgres;
-
 --
--- Name: attachment_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: attachment_id_seq; Type: SEQUENCE; Schema: public
 --
 
 CREATE SEQUENCE public.attachment_id_seq
@@ -46,17 +44,8 @@ CREATE SEQUENCE public.attachment_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.attachment_id_seq OWNER TO postgres;
-
 --
--- Name: attachment_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.attachment_id_seq OWNED BY public.attachment.id;
-
-
---
--- Name: task; Type: TABLE; Schema: public; Owner: postgres
+-- Name: task; Type: TABLE; Schema: public
 --
 
 CREATE TABLE public.task (
@@ -69,10 +58,8 @@ CREATE TABLE public.task (
 );
 
 
-ALTER TABLE public.task OWNER TO postgres;
-
 --
--- Name: task_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+-- Name: task_id_seq; Type: SEQUENCE; Schema: public
 --
 
 CREATE SEQUENCE public.task_id_seq
@@ -83,45 +70,22 @@ CREATE SEQUENCE public.task_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.task_id_seq OWNER TO postgres;
-
 --
--- Name: task_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.task_id_seq OWNED BY public.task.id;
-
-
---
--- Name: attachment id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: attachment id; Type: DEFAULT; Schema: public
 --
 
 ALTER TABLE ONLY public.attachment ALTER COLUMN id SET DEFAULT nextval('public.attachment_id_seq'::regclass);
 
 
 --
--- Name: task id; Type: DEFAULT; Schema: public; Owner: postgres
+-- Name: task id; Type: DEFAULT; Schema: public
 --
 
 ALTER TABLE ONLY public.task ALTER COLUMN id SET DEFAULT nextval('public.task_id_seq'::regclass);
 
 
 --
--- Name: attachment_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.attachment_id_seq', 1, true);
-
-
---
--- Name: task_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.task_id_seq', 1, true);
-
-
---
--- Name: attachment attachment_name_task_id_uq; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: attachment attachment_name_task_id_uq; Type: CONSTRAINT; Schema: public
 --
 
 ALTER TABLE ONLY public.attachment
@@ -129,7 +93,7 @@ ALTER TABLE ONLY public.attachment
 
 
 --
--- Name: attachment attachment_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: attachment attachment_pkey; Type: CONSTRAINT; Schema: public
 --
 
 ALTER TABLE ONLY public.attachment
@@ -137,7 +101,7 @@ ALTER TABLE ONLY public.attachment
 
 
 --
--- Name: task task_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: task task_pkey; Type: CONSTRAINT; Schema: public
 --
 
 ALTER TABLE ONLY public.task
@@ -145,7 +109,7 @@ ALTER TABLE ONLY public.task
 
 
 --
--- Name: attachment attachment_task_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: attachment attachment_task_id_fkey; Type: FK CONSTRAINT; Schema: public
 --
 
 ALTER TABLE ONLY public.attachment
