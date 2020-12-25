@@ -151,7 +151,7 @@ public class TaskController {
                     "No files were uploaded.");
         } else {
             return newFixedLengthResponse(INTERNAL_ERROR, MIME_PLAINTEXT,
-                    "Errors occured! Only " + uploadedCount + " out of " + files.size() + " files were uploaded.");
+                    "Errors occurred! Only " + uploadedCount + " out of " + files.size() + " files were uploaded.");
         }
     }
 
